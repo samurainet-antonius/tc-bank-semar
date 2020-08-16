@@ -14,12 +14,7 @@ class KaryawanController extends BaseController
     }
 
     public function index(Request $request){
-        $uuid_karyawan = (!empty($request->input('uuid_karyawan'))) ? $request->input('uuid_karyawan') : '';
-        // $data=[];
-        if(!empty($uuid_karyawan))
-            $data_karaywan = Karyawan::where('uuid',$uuid_karyawan)->orderBy('id_karyawan','desc')->get();
-        else
-            $data_karyawan = Karyawan::all();
+        $data_karyawan = Karyawan::orderBy('id_karyawan','desc')->get();
 
         if(count($data_karyawan)<1)
             return $this->responseDataNotFound();
@@ -31,21 +26,20 @@ class KaryawanController extends BaseController
         $nik_karyawan = $request->input('nik_karyawan');
         $nama_karyawan = $request->input('nama_karyawan');
         $password = $request->input('password');
-        $jabatan = $request->input('jabatan');
-        $hak_akses = $request->input('hak_akses');
+        $jabatan = explode("-",$request->input('jabatan'));
         $tanggal_masuk = $request->input('tanggal_masuk');
         $lama_bekerja = $request->input('lama_bekerja');
         $gaji = $request->input('gaji');
 
-        $data_karaywan = Karyawan::where('nik_karyawan',$nik_karyawan)->orderBy('id_karyawan','desc')->get();
+        $data_karyawan = Karyawan::where('nik_karyawan',$nik_karyawan)->orderBy('id_karyawan','desc')->get();
 
-        if(count($data_karaywan)<1){
+        if(count($data_karyawan)<1){
             $formParams = [
                 'nik_karyawan' => $nik_karyawan,
                 'nama_karyawan' => $nama_karyawan,
                 'password' => password_hash($password,PASSWORD_DEFAULT),
-                'jabatan' => $jabatan,
-                'hak_akses' => $hak_akses,
+                'jabatan' => $jabatan[0],
+                'hak_akses' => $jabatan[1],
                 'tanggal_masuk' => $tanggal_masuk,
                 'lama_bekerja' => $lama_bekerja,
                 'gaji' => $gaji
@@ -63,8 +57,7 @@ class KaryawanController extends BaseController
         $nik_karyawan = $request->input('nik_karyawan');
         $nama_karyawan = $request->input('nama_karyawan');
         $password = $request->input('password');
-        $jabatan = $request->input('jabatan');
-        $hak_akses = $request->input('hak_akses');
+        $jabatan = explode("-",$request->input('jabatan'));
         $tanggal_masuk = $request->input('tanggal_masuk');
         $lama_bekerja = $request->input('lama_bekerja');
         $gaji = $request->input('gaji');
@@ -75,8 +68,8 @@ class KaryawanController extends BaseController
             'nik_karyawan' => $nik_karyawan,
             'nama_karyawan' => $nama_karyawan,
             'password' => password_hash($password,PASSWORD_DEFAULT),
-            'jabatan' => $jabatan,
-            'hak_akses' => $hak_akses,
+            'jabatan' => $jabatan[0],
+            'hak_akses' => $jabatan[1],
             'tanggal_masuk' => $tanggal_masuk,
             'lama_bekerja' => $lama_bekerja,
             'gaji' => $gaji
@@ -87,9 +80,9 @@ class KaryawanController extends BaseController
                 return $this->responseData($formParams);
         }else{
 
-            $data_karaywan = Karyawan::where('nik_karyawan',$nik_karyawan)->orderBy('id_karyawan','desc')->get();
+            $data_karyawan = Karyawan::where('nik_karyawan',$nik_karyawan)->orderBy('id_karyawan','desc')->get();
 
-            if(count($data_karaywan)<1){
+            if(count($data_karyawan)<1){
                 Karyawan::where("uuid",$uuid_karyawan)->update($formParams);
                 return $this->responseData($formParams);
             }else{
@@ -98,6 +91,15 @@ class KaryawanController extends BaseController
 
         }
     
+    }
+
+    public function detail(Request $request,$uuid_karyawan){
+        $karyawan = Karyawan::where("uuid",$uuid_karyawan)->first();
+
+        if(empty($karyawan))
+            return $this->responseDataNotFound();
+        else
+            return $this->responseDataLimitOffset(1,0,0,$karyawan);
     }
 
     public function delete(Request $request,$uuid_karyawan){

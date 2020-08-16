@@ -14,12 +14,7 @@ class TokoController extends BaseController
     }
 
     public function index(Request $request){
-        $uuid_toko = (!empty($request->input('uuid_toko'))) ? $request->input('uuid_toko') : '';
-        // $data=[];
-        if(!empty($uuid_toko))
-            $data_toko = Toko::where('uuid',$uuid_toko)->orderBy('id_toko','desc')->get();
-        else
-            $data_toko = Toko::all();
+        $data_toko = Toko::orderBy('id_toko','desc')->get();
 
         if(count($data_toko)<1)
             return $this->responseDataNotFound();
@@ -33,9 +28,9 @@ class TokoController extends BaseController
         $no_telpon_toko = $request->input('no_telpon_toko');
 
         $formParams = [
-            'nama_toko' => $nama_toko,
-            'alamat_toko' => $alamat_toko,
-            'no_telpon_toko' => $no_telpon_toko
+        'nama_toko' => $nama_toko,
+        'alamat_toko' => $alamat_toko,
+        'no_telpon_toko' => $no_telpon_toko
         ];
 
         Toko::insert($formParams);
@@ -49,20 +44,30 @@ class TokoController extends BaseController
         $no_telpon_toko = $request->input('no_telpon_toko');
 
         $formParams = [
-            'nama_toko' => $nama_toko,
-            'alamat_toko' => $alamat_toko,
-            'no_telpon_toko' => $no_telpon_toko
+        'nama_toko' => $nama_toko,
+        'alamat_toko' => $alamat_toko,
+        'no_telpon_toko' => $no_telpon_toko
         ];
-    
+        
         Toko::where("uuid",$uuid_toko)->update($formParams);
         return $this->responseData($formParams);
-    
+        
     }
 
+    public function detail(Request $request,$uuid_toko){
+        $toko = Toko::where("uuid",$uuid_toko)->first();
+
+        if(empty($toko))
+            return $this->responseDataNotFound();
+        else
+            return $this->responseDataLimitOffset(1,0,0,$toko);
+    }
+    
     public function delete(Request $request,$uuid_toko){
 
         Toko::where('uuid',$uuid_toko)->delete();
         $data="Data berhasil hapus";
         return $this->responseData($data);
     }
+
 }
